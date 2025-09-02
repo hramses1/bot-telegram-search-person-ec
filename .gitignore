@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.sqlite3
+.venv/
+venv/
+ENV/
+env/
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Env & secrets
+.env
+*.env
+*.pem
+*.key
+
+# State files
+estado_bot.pkl
+
+# Byte-compiled / distribution
+build/
+dist/
+*.egg-info/
