@@ -27,7 +27,7 @@ def quota_used_today(user_data: dict) -> int:
 def quota_remaining_today(user_data: dict) -> int:
     """Devuelve restantes hoy SIN incrementar."""
     used = quota_used_today(user_data)
-    limit_per_day = get_plans_for_userId(user_data.get('token'),user_data.get('userid'))
+    limit_per_day = get_plans_for_userId(user_data.get('userid'))
     return max(0, limit_per_day['items'][0]['token_duration'] - used)
 
 def cleaner_data(texto: str) -> str:

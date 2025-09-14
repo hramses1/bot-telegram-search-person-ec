@@ -7,7 +7,7 @@ from ..shared.user_id import make_id15_from_telegram_id
 from ..services.quota_service import QuotaService
 from ..views import response_views as views
 from ..config.settings import Settings
-from ..lib.api_integration import register_user
+from ..lib.api_integration import get_plans_for_userId, register_user
 from ..schemas.user_schema import AccountPlan, UserSchema, handle_register_user
 from ..lib.threadpool import EXECUTOR
 
@@ -15,6 +15,7 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.effective_message
     u = update.effective_user
     msg_id = msg.message_id
+    limit_per_day = get_plans_for_userId(make_id15_from_telegram_id(u.id))
     context.user_data["userid"] = make_id15_from_telegram_id(u.id)
 
     # 0) Mostrar feedback inmediato (no bloqueante)
@@ -57,9 +58,9 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # 4) Mostrar estado de cuota (sin consumir)
     qs = QuotaService(context.user_data)  # asume que tiene remaining_today()
-    remaining = qs.remaining_today() if hasattr(qs, "remaining_today") else Settings.MAX_MSGS
+    remaining = qs.remaining_today() if hasattr(qs, "remaining_today") else limit_per_day['items'][0]['token_duration']
     await msg.reply_text(
-        f"Te quedan {remaining} mensajes hoy (límite: {Settings.MAX_MSGS}).",
+        f"Te quedan {remaining} mensajes hoy (límite: {limit_per_day['items'][0]['token_duration']}).",
         reply_to_message_id=msg_id
     )
 

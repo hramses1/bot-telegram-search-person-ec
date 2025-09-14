@@ -38,14 +38,26 @@ def get_token(codigo: str) -> str:
     except (HTTPError, Timeout, RequestException) as e:
         raise ApiError(f"Error al obtener token: {e}")
 
-def get_plans_for_userId(token: str, userid:str) -> dict:
-    """ Obtén los planes asociados a un userId usando el token válido."""
-    headers = {**DEFAULT_HEADERS, "Authorization": f"Bearer {token}"}
+def get_plans_for_userId(userid:str) -> dict:
+    """ Obtén los planes asociados a un userId """
     try:
         resp = requests.get(
             f"{API_URL}{GET_PLANS}",
-            params={"userid": userid,},
-            headers=headers,
+            params={"userid": userid},
+            timeout=TIMEOUT,
+        )
+        resp.raise_for_status()
+        return resp.json()
+    except (HTTPError, Timeout, RequestException) as e:
+        raise ApiError(f"Error en búsqueda: {e}")
+    
+def update_user(userid:str,json: dict) -> dict:
+    """ Actualiza los datos de un usuario dado su userId """
+    try:
+        resp = requests.get(
+            f"{API_URL}{GET_PLANS}",
+            params={"userid": userid},
+            json=json,
             timeout=TIMEOUT,
         )
         resp.raise_for_status()
@@ -66,7 +78,6 @@ def search_user(token: str, firstname: str, lastname: str) -> dict:
             timeout=TIMEOUT,
         )
         resp.raise_for_status()
-        print(resp.json())
         return resp.json()
     except (HTTPError, Timeout, RequestException) as e:
         raise ApiError(f"Error en búsqueda: {e}")
@@ -81,10 +92,7 @@ def register_user(payload: dict) -> dict:
             headers=DEFAULT_HEADERS,
             timeout=TIMEOUT,
         )
-        print(payload)
-        print(f'Response: {resp.text}')
-        print(resp.status_code, resp.json())
-        if resp.status_code == 409:
+        if resp.status_code == 500:
             # conflicto típico → ya existe
             return {"error": "Usuario ya registrado"}
         resp.raise_for_status()

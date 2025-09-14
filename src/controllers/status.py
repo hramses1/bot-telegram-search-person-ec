@@ -1,6 +1,8 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from ..lib.api_integration import get_plans_for_userId
+
 from ..views.response_views import quota_info
 
 from ..helpers.utils import quota_remaining_today, quota_used_today
@@ -8,7 +10,8 @@ from ..config.settings import Settings
 
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Muestra el estado actual del usuario sin consumir cuota."""
-    max_msgs = Settings.MAX_MSGS
+    limit_per_day = get_plans_for_userId(context.user_data.get("userid"))
+    max_msgs = limit_per_day['items'][0]['token_duration']
 
     used = quota_used_today(context.user_data)
     remaining = quota_remaining_today(context.user_data)
