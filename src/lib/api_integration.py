@@ -7,6 +7,7 @@ TOKEN = Settings.TOKEN_ENDPOINT
 SEARCH = Settings.SEARCH_ENDPOINT
 CREATE = Settings.CREATE_ENDPOINT
 GET_PLANS = Settings.GET_PLANS_ENDPOINT
+UPDATE_USER = Settings.UPDATE_ENDPOINT
 
 DEFAULT_HEADERS = {
     "Accept": "application/json",
@@ -54,12 +55,13 @@ def get_plans_for_userId(userid:str) -> dict:
 def update_user(userid:str,json: dict) -> dict:
     """ Actualiza los datos de un usuario dado su userId """
     try:
-        resp = requests.get(
-            f"{API_URL}{GET_PLANS}",
-            params={"userid": userid},
+        resp = requests.patch(
+            f"{API_URL}{UPDATE_USER}",
+            params={"codigo": userid},
             json=json,
             timeout=TIMEOUT,
         )
+        print( resp.json())
         resp.raise_for_status()
         return resp.json()
     except (HTTPError, Timeout, RequestException) as e:

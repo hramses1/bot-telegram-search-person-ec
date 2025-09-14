@@ -4,6 +4,8 @@ from zoneinfo import ZoneInfo
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from ..lib.api_integration import update_user
+
 TZ = ZoneInfo("America/Guayaquil")
 
 async def reset_quota(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -13,6 +15,7 @@ async def reset_quota(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     """
     today = datetime.now(TZ).date()
     context.user_data["quota"] = {"date": today, "count": 0}
+    update_user(context.user_data.get('userid'), {"number_requests": 0})
     await update.message.reply_text(
         "🔄 Se reinició tu contador de mensajes para el día de hoy.",
         reply_to_message_id=update.message.message_id

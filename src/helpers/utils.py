@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from ..lib.api_integration import get_plans_for_userId
+from ..lib.api_integration import get_plans_for_userId, update_user
 from ..config.settings import Settings
 import unicodedata
 import re
@@ -17,6 +17,7 @@ def _reset_if_new_day(user_data: dict) -> dict:
     if quota["date"] != today:
         quota = {"date": today, "count": 0}
         user_data["quota"] = quota
+        update_user(user_data.get('userid'), {"number_requests": 0})
     return quota
 
 def quota_used_today(user_data: dict) -> int:
