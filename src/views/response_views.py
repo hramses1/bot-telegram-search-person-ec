@@ -1,3 +1,7 @@
+import json
+from html import escape
+from typing import Any, List, Dict
+
 def help_text():
     return (
         "🧭 Cómo buscar personas\n\n"
@@ -47,3 +51,36 @@ def quota_info():
         "• Si consultas `/status` después de medianoche, verás los contadores en cero aunque aún no hayas enviado nada ese día.\n\n"
         "✅ Así garantizamos que siempre tengas un número fijo de mensajes disponibles por día."
     )
+def _format_person(p: Dict[str, Any]) -> str:
+    return (
+        f"<b>Nombre:</b> {escape(str(p.get('Nombre','')))}\n"
+        f"<b>Apellido:</b> {escape(str(p.get('Apellido','')))}\n"
+        f"<b>CI:</b> <code>{escape(str(p.get('Ci','')))}</code>\n"
+        f"<b>Clase:</b> {escape(str(p.get('Clase','')))}\n"
+        f"<b>Ciudad:</b> {escape(str(p.get('Ciudad','')))}\n"
+        f"<b>Tipo:</b> {escape(str(p.get('TipoIdentificacion','')))}\n"
+        f"<b>Dirección:</b> {escape(str(p.get('Direccion','')))}\n"
+        f"<b>Fecha Nac.:</b> {escape(str(p.get('FechaNacimiento','')))}\n"
+        f"<b>Edad:</b> {escape(str(p.get('Edad','')))}\n"
+        f"<b>Género:</b> {escape(str(p.get('Genero','')))}\n"
+        f"<b>Nacionalidad:</b> {escape(str(p.get('Nacionalidad','')))}\n"
+        f"<b>Estado civil:</b> {escape(str(p.get('EstadoCivil','')))}"
+    )
+def build_message(results: Any, count: int) -> str:
+    if isinstance(results, str):
+        try:
+            results = json.loads(results)
+        except Exception:
+            results = []
+
+    results = results or []
+    total = len(results)
+    n = max(0, min(count, total))
+
+    header = f"🔎 <b>Resultados ({n}/{total})</b>"
+    blocks = [header]
+
+    for i, p in enumerate(results[:n], start=1):
+        blocks.append(f"\n<b>{i}.</b>\n{_format_person(p)}")
+
+    return "\n".join(blocks)

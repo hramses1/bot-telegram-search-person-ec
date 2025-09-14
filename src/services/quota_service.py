@@ -1,4 +1,6 @@
 from datetime import datetime, timezone
+
+from ..lib.api_integration import get_plans_for_userId
 from ..config.settings import Settings
 
 class QuotaService:
@@ -14,9 +16,11 @@ class QuotaService:
         # Reset si cambió el día
         if quota["date"] != today:
             quota = {"date": today, "count": 0}
+            
+        limit_per_day = get_plans_for_userId(self.user.get('token'),self.user.get('userid'))
 
         # Si ya alcanzó el límite, no permitir
-        if quota["count"] >= Settings.MAX_MSGS:
+        if quota["count"] >= limit_per_day['items'][0]['token_duration']:
             self.user["quota"] = quota
             return False, quota["count"]
 

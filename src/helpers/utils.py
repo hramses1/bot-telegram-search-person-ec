@@ -1,5 +1,9 @@
 from datetime import datetime
+
+from ..lib.api_integration import get_plans_for_userId
 from ..config.settings import Settings
+import unicodedata
+import re
 
 def join_args(parts):
     return " ".join(parts).strip()
@@ -23,4 +27,16 @@ def quota_used_today(user_data: dict) -> int:
 def quota_remaining_today(user_data: dict) -> int:
     """Devuelve restantes hoy SIN incrementar."""
     used = quota_used_today(user_data)
-    return max(0, Settings.MAX_MSGS - used)
+    limit_per_day = get_plans_for_userId(user_data.get('token'),user_data.get('userid'))
+    return max(0, limit_per_day['items'][0]['token_duration'] - used)
+
+def cleaner_data(texto: str) -> str:
+    # 1. Normalizar y quitar acentos
+    texto = unicodedata.normalize("NFD", texto or "")
+    texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
+    
+    # 2. Eliminar todo lo que no sea alfanumérico o espacio
+    texto = re.sub(r'[^a-zA-Z0-9\s]', '', texto)
+    
+    # 3. Quitar espacios extras
+    return re.sub(r'\s+', ' ', texto).strip()

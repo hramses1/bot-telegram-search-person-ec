@@ -24,7 +24,7 @@ class UserSchema(BaseModel):
     )
 
     id: str
-    username: str
+    username: Optional[str] = "generic_username"
     email: Optional[EmailStr] = None
     emailVisibility: bool = True
 
